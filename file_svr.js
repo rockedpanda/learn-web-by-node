@@ -1,8 +1,10 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const _ = require('./underscore.min.js');
 
 let BASE_DIR = './public/';
+let indexTemplate = _.template(fs.readFileSync('./index.tpl.html', 'utf8'), { variable: 'data' });
 
 function readFile(relativePath){//演示代码,暂时使用同步判定.
     let localPath = path.join(BASE_DIR, relativePath);
@@ -25,48 +27,14 @@ const server = http.createServer((req, res) => {
     if(relativePath===''){
         //访问网站根目录,给出文件类别,手动拼接html返回
         let headHTML = `
-<!DOCTYPE html>
-<html lang="cn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>首页</title>
-</head>
-<body>
-    <h1>首页</h1>
-    <input type="file" id="f"><a href="javascript:send()">上传</a><hr/>
-        `;
-        let endHTML = `
-</body>
-<script>
-function send() {
-    var f = document.getElementById('f'); //input file控件
-    var uploadReq = new Request('/'+f.files[0].name, { //url为服务器接口URL
-        method: "PUT",
-        body: f.files[0]
-    });
-    fetch(uploadReq).then(x => x.text()).then(x => {
-        console.log(x); //此处假定响应信息是text
-        alert(x);
-        document.location.reload();
-    });
-}
-</script>
-</html>
+
         `;
         fs.readdir(BASE_DIR, function(err, files){
             if(err){
                 res.send('500 ERROR');
                 return;
             }
-            let bodyHTML = files.map(x=>{
-                let directory = x.indexOf('.')===-1?'/':'';//简单粗暴的将没有.的都算作目录处理,不正确.
-                return `<div><a href="${x}${directory}">${x}${directory}</a></div>`;
-            }).join('\n');
-            res.write(headHTML);
-            res.write(bodyHTML);
-            res.end(endHTML);
+            res.end(indexTemplate({ files:files}));
         });
         return;
     }
