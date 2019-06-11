@@ -4,8 +4,8 @@ const path = require('path');
 
 let BASE_DIR = './public/';
 
-function readFile(url){//演示代码,暂时使用同步判定.
-    let localPath = path.join(BASE_DIR, url);
+function readFile(relativePath){//演示代码,暂时使用同步判定.
+    let localPath = path.join(BASE_DIR, relativePath);
     if(!fs.existsSync(localPath)){
         return false;
     }
@@ -17,7 +17,11 @@ function readFile(url){//演示代码,暂时使用同步判定.
 }
 
 const server = http.createServer((req, res) => {
-    let fileStream = readFile(req.url.substring(1));
+    let relativePath = req.url.substring(1);
+    if (req.url.endsWith('/')){
+        relativePath = relativePath+'index.html';
+    }
+    let fileStream = readFile(relativePath);
     if(!fileStream){
         res.statusCode = 404;
         res.end('File Not Fount');

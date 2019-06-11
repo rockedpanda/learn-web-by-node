@@ -10,3 +10,14 @@
 - 文档: https://npm.taobao.org/mirrors/node/latest/docs/api/http.html
 
 ## 样例3: 静态资源网站
+- 实现文件发送
+- 实现index.html默认处理
+- 测试 /sub/ /sub2/
+- 未实现
+    - mime
+    - 响应头
+    - 文件大小
+    - 304相同文件判定
+    - cookie session
+    - 上传和数据存储
+    - POST协议区分
