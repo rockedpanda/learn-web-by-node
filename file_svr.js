@@ -1,10 +1,10 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const _ = require('./underscore.min.js');
+// const _ = require('./underscore.min.js');
 
 let BASE_DIR = './public/';
-let indexTemplate = _.template(fs.readFileSync('./index.tpl.html', 'utf8'), { variable: 'data' });
+// let indexTemplate = _.template(fs.readFileSync('./index.tpl.html', 'utf8'), { variable: 'data' });
 
 function readFile(relativePath){//演示代码,暂时使用同步判定.
     let localPath = path.join(BASE_DIR, relativePath);
@@ -24,17 +24,14 @@ const server = http.createServer((req, res) => {
         return;
     }
     let relativePath = req.url.substring(1);
-    if(relativePath===''){
-        //访问网站根目录,给出文件类别,手动拼接html返回
-        let headHTML = `
-
-        `;
-        fs.readdir(BASE_DIR, function(err, files){
-            if(err){
+    if(relativePath.startsWith('api/list')){
+        fs.readdir(BASE_DIR, function (err, files) {
+            if (err) {
                 res.send('500 ERROR');
                 return;
             }
-            res.end(indexTemplate({ files:files}));
+            res.setHeader('Content-Type','application/json');
+            res.end(JSON.stringify({error_code:0,data:files}));
         });
         return;
     }

@@ -1,13 +1,46 @@
 <!DOCTYPE html>
 <html lang="cn">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>首页</title>
+    <script src="https://cdn.bootcss.com/underscore.js/1.9.1/underscore-min.js"></script>
 </head>
+
 <body>
     <h1>首页</h1>
-    这里是首页
+    <input type="file" id="f"><a href="javascript:send()">上传</a>
+    <hr />
+    <div id="main"></div>
 </body>
+<script type="template" id="tpl">
+    <% for(var i=0;i<data.files.length;i++){
+        var x = data.files[i];
+        var directory = x.indexOf('.')===-1?'/':'';
+        %>
+    <div><a href="<%=x + directory%>"><%=x + directory%></a></div>
+    <%}%>
+</script>
+<script>
+    function send() {
+        var f = document.getElementById('f'); //input file控件
+        var uploadReq = new Request('/' + f.files[0].name, { //url为服务器接口URL
+            method: "PUT",
+            body: f.files[0]
+        });
+        fetch(uploadReq).then(x => x.text()).then(x => {
+            console.log(x); //此处假定响应信息是text
+            alert(x);
+            document.location.reload();
+        });
+    }
+    window.onload = function(){
+        var tpl = document.getElementById('tpl').innerHTML;
+        fetch('/api/list').then(x=>x.json()).then(x=>{
+            document.getElementById('main').innerHTML = _.template(tpl,{ variable: 'data'})({files:x.data});
+        })
+    }
+</script>
 </html>
