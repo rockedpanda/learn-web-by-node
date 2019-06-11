@@ -17,6 +17,10 @@ function readFile(relativePath){//演示代码,暂时使用同步判定.
 }
 
 const server = http.createServer((req, res) => {
+    if(req.method === 'PUT'){
+        putFile(req, res);
+        return;
+    }
     let relativePath = req.url.substring(1);
     if(relativePath===''){
         //访问网站根目录,给出文件类别,手动拼接html返回
@@ -68,3 +72,21 @@ const server = http.createServer((req, res) => {
     socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
 }); */
 server.listen(8000);
+
+
+function putFile(req, res){
+    let relativePath = req.url.substring(1);//不支持多级目录
+    if (relativePath === '' || relativePath.split('/').pop().indexOf('.')===-1) {
+        res.statusCode = 403;
+        return res.end('非法操作');//如果路径为空或者上传文件没有扩展名,返回403
+    }
+    let localPath = path.join(BASE_DIR, relativePath);
+    //旧文件直接覆盖
+    req.pipe(fs.createWriteStream(localPath)).on('close',function(err){
+        if(err){
+            console.log(err);
+            return res.end('上传失败');
+        }
+        return res.end('OK');
+    });
+}
