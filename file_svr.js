@@ -35,9 +35,24 @@ const server = http.createServer((req, res) => {
 </head>
 <body>
     <h1>首页</h1>
+    <input type="file" id="f"><a href="javascript:send()">上传</a><hr/>
         `;
         let endHTML = `
 </body>
+<script>
+function send() {
+    var f = document.getElementById('f'); //input file控件
+    var uploadReq = new Request('/'+f.files[0].name, { //url为服务器接口URL
+        method: "PUT",
+        body: f.files[0]
+    });
+    fetch(uploadReq).then(x => x.text()).then(x => {
+        console.log(x); //此处假定响应信息是text
+        alert(x);
+        document.location.reload();
+    });
+}
+</script>
 </html>
         `;
         fs.readdir(BASE_DIR, function(err, files){
