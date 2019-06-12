@@ -25,6 +25,15 @@ const server = http.createServer((req, res) => {
     }
     let relativePath = req.url.substring(1);
     if(relativePath.startsWith('api/list')){
+        corsHeader(req, res);
+        if(req.method === 'OPTIONS'){
+            res.statusCode = 204;
+            res.end('OK');
+            return;
+        }
+        /* if(req.method === 'POST'){
+            req.pipe(process.stdout);
+        } */
         fs.readdir(BASE_DIR, function (err, files) {
             if (err) {
                 res.send('500 ERROR');
@@ -69,4 +78,16 @@ function putFile(req, res){
         }
         return res.end('OK');
     });
+}
+
+/**
+ * 为单个请求增加CORS相关的响应头处理
+ * @param {HttpRequest} req 请求
+ * @param {HttpResponse} res 响应
+ */
+function corsHeader(req, res){
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "content-type");
+    res.setHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS,PUT,DELETE");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
 }
